@@ -27,6 +27,7 @@ Route::group(['middleware' => ['web']], function(){
 		Route::group(['prefix' => '/api'], function(){
 			Route::get('/posts', 'PostController@index');
 			Route::post('/post', 'PostController@store');
+			Route::post('/comment', 'CommentsController@store');
 		});
 	});
 });

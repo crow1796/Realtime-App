@@ -5,7 +5,6 @@
 		AppServices.PostsService = function($http, $q){
 			this.sendPost = sendPost;
 			this.broadcastPost = broadcastPost;
-			this.getAllPosts = getAllPosts;
 
 			function sendPost(data){
 				let requestData = {
@@ -28,14 +27,29 @@
 				socket.emit('new_post', data);
 			}
 
-			function getAllPosts(){
+		};
+
+		AppServices.SinglePostService = function($http, $q){
+			this.sendComment = sendComment;
+			this.broadcastComment = broadcastComment;
+
+			function sendComment(data){
+				console.log(data);
 				return $http({
-					'url': window.location.origin + '/api/posts',
-					'method': 'GET',
+					'url': window.location.origin + '/api/comment',
+					'method': 'POST',
+					'data': data
 				})
 				.then((response) => {
+					if(response.data == false){
+						return false;
+					}
 					return response.data;
 				});
+			}
+
+			function broadcastComment(data){
+				socket.emit('new_comment', data);
 			}
 
 		};
@@ -44,6 +58,7 @@
 
 	angular
 		.module('rt_app')
-		.service('postsService', ['$http', '$q', AppServices.PostsService]);
+		.service('postsService', ['$http', '$q', AppServices.PostsService])
+		.service('singlePostService', ['$http', '$q', AppServices.SinglePostService]);
 
 })(window, document, window.angular, window.jQuery);

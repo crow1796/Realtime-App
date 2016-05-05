@@ -12,6 +12,15 @@ class PostController extends Controller
 
 	public function index(){
 		$posts = \App\Post::orderBy('created_at', 'desc')->get();
+		foreach($posts as $post){
+			$post->posted_by = $post->user->fullname;
+			$post->diff_for_humans = \Carbon\Carbon::parse($post->created_at)->diffForHumans();
+			$post->comments = $post->comments;
+			for($counter = 0; $counter < $post->comments->count(); $counter++){
+				$post->comments[$counter]->by = $post->comments[$counter]->post->user->fullname;
+			}
+		}
+
 		return $posts;
 	}
 

@@ -6,18 +6,84 @@ textarea{
 
 .posts-container{
 	.post{
-		padding: 15px;
 		@include box-shadow(0, 0, 4px, rgba(0,0,0,.2));
 		border-radius: 8px;
 		margin: 0 0 15px 0;
+		
+		.poster-name{
+			padding: 15px;
+			display: table;
+			.user-thumbnail{
+				width: 80px;
+				height: 80px;
+				object-fit: cover;
+				display: table-cell;
+			    vertical-align: top;
+			}
+
+			.post-info{
+				padding-left: 10px;
+				display: table-cell;
+			    vertical-align: top;
+			}
+		}
 
 		.post-buttons{
-			padding: 5px 0;
+			padding: 5px 15px;
 			line-height: 44px;
+			background: #F6F7F8;
+			border-top: 1px solid #E1E2E3;
+			border-bottom: 1px solid #E1E2E3;
 		}
 
 		&-content{
-			padding: 15px 10px;
+			padding: 15px;
+		}
+
+		&-comments-container{
+			padding: 15px;
+			background: #F6F7F8;
+
+			.comment{
+				display: table;
+				margin: 5px 0;
+				.user-thumbnail{
+					min-width: 50px;
+					min-height: 50px;
+					max-width: 50px;
+					max-height: 50px;
+					object-fit: cover;
+					display: table-cell;
+				    vertical-align: top;
+				}
+
+				&-content{
+					word-break: break-word;
+				}
+
+				&-info{
+					padding-left: 10px;
+					display: table-cell;
+				    vertical-align: top;
+				}
+			}
+		}
+
+		&-comment{
+			background: #F6F7F8;
+			padding: 15px;
+		}
+	}
+}
+
+.notifications-dropdown{
+	.dropdown-menu{
+		padding: 10px;
+		min-width: 280px;
+		
+		li{
+			border-bottom: 1px solid gray;
+			padding: 10px 0px;
 		}
 	}
 }

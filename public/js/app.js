@@ -10,15 +10,20 @@ var socket = io.connect((window.location.origin.split(':8888')[0]) + ':7876');
 
 	let AppControllers = {};
 	(function(AppControllers){
-		AppControllers.NewsfeedController = function(postsService){
+		AppControllers.NewsfeedController = function(postFactory, postsService){
 			let vm = this;
 			vm.postContent = '';
 			vm.processPost = processPost;
 			vm.posts = [];
-			postsService.getAllPosts().then((response) => { vm.posts = response; });
+			postFactory.getPosts().then((response) => { vm.posts = response; });
 
 			socket.on('new_post', function(){
-				postsService.getAllPosts().then((response) => { vm.posts = response; });
+				postFactory.getPosts().then((response) => { vm.posts = response; });
+				vm.postContent = '';
+			});
+
+			socket.on('new_comment', function(){
+				postFactory.getPosts().then((response) => { vm.posts = response; });
 				vm.postContent = '';
 			});
 
@@ -31,25 +36,66 @@ var socket = io.connect((window.location.origin.split(':8888')[0]) + ':7876');
 				return false;
 			}
 		}
+
+		AppControllers.SinglePostController = function(singlePostService, postFactory){
+			let vm = this;
+			vm.comment = '';
+			postFactory.getPosts().then((response) => { vm.posts = response; });
+			vm.sendComment = sendComment;
+
+			function sendComment(index){
+				if(event.keyCode == 13 && event.shiftKey == false){
+					event.preventDefault();
+					if(vm.comment != ''){
+						vm.currentPost = vm.posts[index];
+						vm.currentPost.comment_content = vm.comment;
+						singlePostService.sendComment(vm.currentPost)
+											.then((response) => {
+												singlePostService.broadcastComment(response);
+											});
+						vm.comment = '';
+					}
+				}
+			}
+		};
 		return AppControllers;
 	})(AppControllers || {});
 
 	angular
 		.module('rt_app')
-		.controller('newsfeedController', ['postsService', AppControllers.NewsfeedController]);
+		.controller('newsfeedController', ['postFactory', 'postsService', AppControllers.NewsfeedController])
+		.controller('singlePostController', ['singlePostService', 'postFactory', AppControllers.SinglePostController]);
 
 })(window, document, window.angular, window.jQuery);
-(function(window, document, angular, $, socket){
+(function(window, document, angular, $){
 
 	let AppFactories = {};
 	(function(AppFactories) {
+		AppFactories.PostFactory = function($http){
+			let factory = {
+				getPosts: getPosts
+			};
+
+			return factory;
+
+			function getPosts(){
+				return $http({
+					'url': window.location.origin + '/api/posts',
+					'method': 'GET',
+				})
+				.then((response) => {
+					return response.data;
+				});
+			}
+		}
 		return AppFactories;
 	})(AppFactories || {});
 
 	angular
-		.module('rt_app');
+		.module('rt_app')
+		.factory('postFactory', ['$http', 'postsService', AppFactories.PostFactory]);
 
-})(window, document, window.angular, window.jQuery, socket);
+})(window, document, window.angular, window.jQuery);
 (function(window, document, angular, $){
 
 	let AppServices = {};
@@ -57,7 +103,6 @@ var socket = io.connect((window.location.origin.split(':8888')[0]) + ':7876');
 		AppServices.PostsService = function($http, $q){
 			this.sendPost = sendPost;
 			this.broadcastPost = broadcastPost;
-			this.getAllPosts = getAllPosts;
 
 			function sendPost(data){
 				let requestData = {
@@ -80,14 +125,29 @@ var socket = io.connect((window.location.origin.split(':8888')[0]) + ':7876');
 				socket.emit('new_post', data);
 			}
 
-			function getAllPosts(){
+		};
+
+		AppServices.SinglePostService = function($http, $q){
+			this.sendComment = sendComment;
+			this.broadcastComment = broadcastComment;
+
+			function sendComment(data){
+				console.log(data);
 				return $http({
-					'url': window.location.origin + '/api/posts',
-					'method': 'GET',
+					'url': window.location.origin + '/api/comment',
+					'method': 'POST',
+					'data': data
 				})
 				.then((response) => {
+					if(response.data == false){
+						return false;
+					}
 					return response.data;
 				});
+			}
+
+			function broadcastComment(data){
+				socket.emit('new_comment', data);
 			}
 
 		};
@@ -96,7 +156,8 @@ var socket = io.connect((window.location.origin.split(':8888')[0]) + ':7876');
 
 	angular
 		.module('rt_app')
-		.service('postsService', ['$http', '$q', AppServices.PostsService]);
+		.service('postsService', ['$http', '$q', AppServices.PostsService])
+		.service('singlePostService', ['$http', '$q', AppServices.SinglePostService]);
 
 })(window, document, window.angular, window.jQuery);
 (function(window, document, angular, $){

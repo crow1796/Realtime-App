@@ -11,6 +11,10 @@ clients.on('connection', function(socket){
 		clients.emit('new_post', data);
 	});
 
+	socket.on('new_comment', function(data){
+		clients.emit('new_comment', data);
+	});
+
 	socket.on('disconnect', function(){
 
 	});

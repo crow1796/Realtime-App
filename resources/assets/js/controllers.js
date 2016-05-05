@@ -2,15 +2,20 @@
 
 	let AppControllers = {};
 	(function(AppControllers){
-		AppControllers.NewsfeedController = function(postsService){
+		AppControllers.NewsfeedController = function(postFactory, postsService){
 			let vm = this;
 			vm.postContent = '';
 			vm.processPost = processPost;
 			vm.posts = [];
-			postsService.getAllPosts().then((response) => { vm.posts = response; });
+			postFactory.getPosts().then((response) => { vm.posts = response; });
 
 			socket.on('new_post', function(){
-				postsService.getAllPosts().then((response) => { vm.posts = response; });
+				postFactory.getPosts().then((response) => { vm.posts = response; });
+				vm.postContent = '';
+			});
+
+			socket.on('new_comment', function(){
+				postFactory.getPosts().then((response) => { vm.posts = response; });
 				vm.postContent = '';
 			});
 
@@ -23,11 +28,34 @@
 				return false;
 			}
 		}
+
+		AppControllers.SinglePostController = function(singlePostService, postFactory){
+			let vm = this;
+			vm.comment = '';
+			postFactory.getPosts().then((response) => { vm.posts = response; });
+			vm.sendComment = sendComment;
+
+			function sendComment(index){
+				if(event.keyCode == 13 && event.shiftKey == false){
+					event.preventDefault();
+					if(vm.comment != ''){
+						vm.currentPost = vm.posts[index];
+						vm.currentPost.comment_content = vm.comment;
+						singlePostService.sendComment(vm.currentPost)
+											.then((response) => {
+												singlePostService.broadcastComment(response);
+											});
+						vm.comment = '';
+					}
+				}
+			}
+		};
 		return AppControllers;
 	})(AppControllers || {});
 
 	angular
 		.module('rt_app')
-		.controller('newsfeedController', ['postsService', AppControllers.NewsfeedController]);
+		.controller('newsfeedController', ['postFactory', 'postsService', AppControllers.NewsfeedController])
+		.controller('singlePostController', ['singlePostService', 'postFactory', AppControllers.SinglePostController]);
 
 })(window, document, window.angular, window.jQuery);

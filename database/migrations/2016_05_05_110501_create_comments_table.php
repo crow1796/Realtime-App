@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateFriendUserTable extends Migration
+class CreateCommentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,20 +12,18 @@ class CreateFriendUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('friend_user', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('reqr_id')
+            $table->integer('post_id')
                     ->unsigned();
-            $table->foreign('reqr_id')
+            $table->foreign('post_id')
                     ->references('id')
-                    ->on('users')
+                    ->on('posts')
                     ->onDelete('cascade');
-            $table->integer('friend_id')
-                    ->unsigned();
-            $table->foreign('friend_id')
-                    ->references('id')
-                    ->on('users')
-                    ->onDelete('cascade');
+            $table->text('comment');
+            $table->integer('likes')
+                    ->nullable()
+                    ->default(0);
             $table->timestamps();
         });
     }
@@ -37,6 +35,6 @@ class CreateFriendUserTable extends Migration
      */
     public function down()
     {
-        Schema::drop('friend_user');
+        Schema::drop('comments');
     }
 }
