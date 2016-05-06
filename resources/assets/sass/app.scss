@@ -1,4 +1,5 @@
 @import 'partials/_mixins.scss';
+@import 'partials/_keyframes';
 
 textarea{
 	resize: none;
@@ -12,7 +13,7 @@ textarea{
 		
 		.poster-name{
 			padding: 15px;
-			display: table;
+			display: flex;
 			.user-thumbnail{
 				width: 80px;
 				height: 80px;
@@ -45,8 +46,10 @@ textarea{
 			background: #F6F7F8;
 
 			.comment{
-				display: table;
+				display: flex;
 				margin: 5px 0;
+				border-bottom: 1px solid #E1E2E3;
+				padding-bottom: 7px;
 				.user-thumbnail{
 					min-width: 50px;
 					min-height: 50px;
@@ -77,13 +80,35 @@ textarea{
 }
 
 .notifications-dropdown{
+
+	.notification {
+		&-icon{
+			&:before{
+				color: #286090 !important;
+			}
+		}
+
+		&-count{
+			font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+		}
+	}
+
 	.dropdown-menu{
 		padding: 10px;
 		min-width: 280px;
-		
+		max-width: 280px;
+		left: calc(50% - 140px) !important;
 		li{
 			border-bottom: 1px solid gray;
 			padding: 10px 0px;
 		}
 	}
+}
+
+.hit-bell {
+	animation: bell-ring 1s linear;
+	-webkit-animation: bell-ring 1s linear;
+	-moz-animation: bell-ring 1s linear;
+	-o-animation: bell-ring 1s linear;
+	-ms-animation: bell-ring 1s linear;
 }

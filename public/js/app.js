@@ -58,13 +58,28 @@ var socket = io.connect((window.location.origin.split(':8888')[0]) + ':7876');
 				}
 			}
 		};
+
+		AppControllers.NotificationsController = function(notificationsService, notificationsFactory, $timeout){
+			let vm = this;
+			vm.showClass = false;
+			notificationsFactory.getNotifications().then((response) => { vm.notifications = response; });
+
+			socket.on('new_notification', function(){
+				notificationsFactory.getNotifications().then((response) => { vm.notifications = response; });
+				vm.showClass = true;
+				$timeout(function(){
+					vm.showClass = false;
+				}, 1000);
+			});
+		};
 		return AppControllers;
 	})(AppControllers || {});
 
 	angular
 		.module('rt_app')
 		.controller('newsfeedController', ['postFactory', 'postsService', AppControllers.NewsfeedController])
-		.controller('singlePostController', ['singlePostService', 'postFactory', AppControllers.SinglePostController]);
+		.controller('singlePostController', ['singlePostService', 'postFactory', AppControllers.SinglePostController])
+		.controller('notificationsController', ['notificationsService', 'notificationsFactory', '$timeout', AppControllers.NotificationsController]);
 
 })(window, document, window.angular, window.jQuery);
 (function(window, document, angular, $){
@@ -81,19 +96,37 @@ var socket = io.connect((window.location.origin.split(':8888')[0]) + ':7876');
 			function getPosts(){
 				return $http({
 					'url': window.location.origin + '/api/posts',
-					'method': 'GET',
+					'method': 'GET'
 				})
 				.then((response) => {
 					return response.data;
 				});
 			}
-		}
+		};
+
+		AppFactories.NotificationsFactory = function($http, notificationsService){
+			let factory = {
+				getNotifications: getNotifications
+			};
+			return factory;
+
+			function getNotifications(){
+				return $http({
+					'url': window.location.origin + '/api/notifications',
+					'method': 'GET'
+				})
+				.then((response) => {
+					return response.data;
+				});
+			}
+		};
 		return AppFactories;
 	})(AppFactories || {});
 
 	angular
 		.module('rt_app')
-		.factory('postFactory', ['$http', 'postsService', AppFactories.PostFactory]);
+		.factory('postFactory', ['$http', 'postsService', AppFactories.PostFactory])
+		.factory('notificationsFactory', ['$http', 'notificationsService', AppFactories.NotificationsFactory]);
 
 })(window, document, window.angular, window.jQuery);
 (function(window, document, angular, $){
@@ -123,6 +156,7 @@ var socket = io.connect((window.location.origin.split(':8888')[0]) + ':7876');
 
 			function broadcastPost(data){
 				socket.emit('new_post', data);
+				socket.emit('new_notification', data);
 			}
 
 		};
@@ -148,8 +182,12 @@ var socket = io.connect((window.location.origin.split(':8888')[0]) + ':7876');
 
 			function broadcastComment(data){
 				socket.emit('new_comment', data);
+				socket.emit('new_notification', data);
 			}
 
+		};
+
+		AppServices.NotificationsService = function($http, $q){
 		};
 		return AppServices;
 	})(AppServices || {});
@@ -157,7 +195,8 @@ var socket = io.connect((window.location.origin.split(':8888')[0]) + ':7876');
 	angular
 		.module('rt_app')
 		.service('postsService', ['$http', '$q', AppServices.PostsService])
-		.service('singlePostService', ['$http', '$q', AppServices.SinglePostService]);
+		.service('singlePostService', ['$http', '$q', AppServices.SinglePostService])
+		.service('notificationsService', ['$http', '$q', AppServices.NotificationsService]);
 
 })(window, document, window.angular, window.jQuery);
 (function(window, document, angular, $){

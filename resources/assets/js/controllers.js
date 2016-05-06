@@ -50,12 +50,27 @@
 				}
 			}
 		};
+
+		AppControllers.NotificationsController = function(notificationsService, notificationsFactory, $timeout){
+			let vm = this;
+			vm.showClass = false;
+			notificationsFactory.getNotifications().then((response) => { vm.notifications = response; });
+
+			socket.on('new_notification', function(){
+				notificationsFactory.getNotifications().then((response) => { vm.notifications = response; });
+				vm.showClass = true;
+				$timeout(function(){
+					vm.showClass = false;
+				}, 1000);
+			});
+		};
 		return AppControllers;
 	})(AppControllers || {});
 
 	angular
 		.module('rt_app')
 		.controller('newsfeedController', ['postFactory', 'postsService', AppControllers.NewsfeedController])
-		.controller('singlePostController', ['singlePostService', 'postFactory', AppControllers.SinglePostController]);
+		.controller('singlePostController', ['singlePostService', 'postFactory', AppControllers.SinglePostController])
+		.controller('notificationsController', ['notificationsService', 'notificationsFactory', '$timeout', AppControllers.NotificationsController]);
 
 })(window, document, window.angular, window.jQuery);

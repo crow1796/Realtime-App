@@ -15,6 +15,10 @@ class CommentsController extends Controller
     	$post = \App\Post::findOrFail($request->id);
     	$commented = $post->comments()->save($comment);
 
+    	if($commented){
+    		\Event::fire(new \App\Events\PushNotificationEvent(new \App\Messages\CommentMessage(\Auth::user())));
+    	}
+
     	return $commented ? $post : false;
     }
 }

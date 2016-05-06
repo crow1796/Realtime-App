@@ -19,13 +19,15 @@
 					<li role="presentation">
 						<a href="{{ url('/') }}">Home</a>
 					</li>
-					<li role="presentation" class="dropdown" class="notifications-dropdown">
+					<li role="presentation" class="dropdown notifications-dropdown" ng-controller="notificationsController as notificationsVm">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-							Notifications
+							<span class="fa fa-bell notification-icon @{{ notificationsVm.showClass ? hit-bell : '' }}">
+								<span class="notification-count" ng-bind="notificationsVm.notifications.length"></span>
+							</span>
 						</a>
 						<ul class="dropdown-menu">
-							<li role="presentation">
-								Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nisi quae, blanditiis vitae facilis, magni voluptas odio cum iste, natus ipsum labore asperiores? Illo illum repellat, facere deleniti maxime architecto sint!
+							<li role="presentation" ng-repeat="notification in notificationsVm.notifications">
+								<span ng-bind="notification.message"></span>
 							</li>
 						</ul>
 					</li>

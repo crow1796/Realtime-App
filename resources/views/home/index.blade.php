@@ -21,14 +21,13 @@
 						<div class="poster-name">
 							<img src="{{ url('/images/thumbnail.jpg') }}" alt="Thumbnail" class="img-responsive img-thumbnail user-thumbnail">
 							<div class="post-info">
-								<strong>@{{ post.posted_by }}</strong>
+								<strong ng-bind="post.posted_by"></strong>
 								<div>
-									<small diff-for-humans date="@{{ post.created_at }}">@{{ post.diff_for_humans }}</small>
+									<small diff-for-humans date="@{{ post.created_at }}" ng-bind="post.diff_for_humans"></small>
 								</div>
 							</div>	
 						</div>
-						<div class="post-content">
-							@{{ post.post_content }}
+						<div class="post-content" ng-bind="post.post_content">
 						</div>
 						<div class="post-buttons text-right">
 							<small class="pull-left post-likes">24 likes</small>
@@ -43,9 +42,11 @@
 							<div class="comment" ng-repeat="singleComment in post.comments">
 								<img src="{{ url('/images/thumbnail.jpg') }}" alt="Thumbnail" class="img-responsive img-thumbnail user-thumbnail">
 								<div class="comment-info">
-									<strong>@{{ singleComment.by }}</strong>
-									<div class="comment-content">
-										@{{ singleComment.comment }}
+									<strong ng-bind="singleComment.by"></strong>
+									<div class="comment-content" ng-bind="singleComment.comment">
+										<div>
+											<small ng-bind="singleComment.diff_for_humans"></small>
+										</div>
 									</div>
 								</div>
 								<hr>

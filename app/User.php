@@ -29,6 +29,16 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
+    public function actions(){
+        return $this->hasMany('App\Action', 'owner_id');
+    }
+
+    public function notifications(){
+        return $this->belongsToMany('App\Action', 'action_user', 'user_id', 'action_id')
+                    ->withTimestamps()
+                    ->withPivot(['seen']);
+    }
+
     public function posts(){
         return $this->hasMany('App\Post', 'user_id');
     }

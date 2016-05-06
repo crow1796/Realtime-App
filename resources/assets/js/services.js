@@ -25,6 +25,7 @@
 
 			function broadcastPost(data){
 				socket.emit('new_post', data);
+				socket.emit('new_notification', data);
 			}
 
 		};
@@ -50,8 +51,12 @@
 
 			function broadcastComment(data){
 				socket.emit('new_comment', data);
+				socket.emit('new_notification', data);
 			}
 
+		};
+
+		AppServices.NotificationsService = function($http, $q){
 		};
 		return AppServices;
 	})(AppServices || {});
@@ -59,6 +64,7 @@
 	angular
 		.module('rt_app')
 		.service('postsService', ['$http', '$q', AppServices.PostsService])
-		.service('singlePostService', ['$http', '$q', AppServices.SinglePostService]);
+		.service('singlePostService', ['$http', '$q', AppServices.SinglePostService])
+		.service('notificationsService', ['$http', '$q', AppServices.NotificationsService]);
 
 })(window, document, window.angular, window.jQuery);

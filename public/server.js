@@ -15,6 +15,10 @@ clients.on('connection', function(socket){
 		clients.emit('new_comment', data);
 	});
 
+	socket.on('new_notification', function(data){
+		clients.emit('new_notification', data);
+	});
+
 	socket.on('disconnect', function(){
 
 	});
